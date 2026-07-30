@@ -1,0 +1,45 @@
+USE CASE ID: UC-02
+USE CASE NAME: Process Guest Checkout & Payment
+PRIMARY ACTOR: Guest Shopper
+SECONDARY ACTORS: Payment Gateway, Carrier Shipping API
+
+PRE-CONDITIONS:
+1. Shopper has at least 1 active product in the shopping cart.
+2. Shopper has navigated to the Checkout page (`/checkout`).
+
+POST-CONDITIONS:
+1. Order record is persisted in Orders DB with "Paid" status.
+2. Inventory counts for ordered line items are decremented.
+3. Order Confirmation screen renders containing the order summary and 1-click account creation prompt.
+
+MAIN SUCCESS SCENARIO (Happy Path):
+1. Shopper enters contact email and a valid 5-digit destination postal code.
+2. System triggers UC-01 to calculate dynamic shipping options via Carrier API.
+3. Carrier API responds in under 3.0 seconds with calculated shipping options.
+4. Shopper selects preferred shipping option, fills in shipping address, and inputs credit card details.
+5. Shopper clicks "Place Order".
+6. System formats encrypted payment request and transmits payload to Payment Gateway.
+7. Payment Gateway validates details and returns a successful transaction authorization token.
+8. System writes order data to Orders DB, clears cart session, and displays Order Confirmation screen with an optional account creation prompt.
+
+EXTENSIONS (Alternate / Exception Paths):
+
+- 3a. Carrier Shipping API times out (>= 3.0 seconds) or returns a server error:
+  - 3a1. System automatically applies a $5.99 flat-rate standard shipping option to the checkout UI.
+  - 3a2. System writes a high-priority timeout alert to the backend error tracking system (silent to shopper).
+  - 3a3. Shopper resumes checkout flow at Step 4 using $5.99 flat rate.
+
+- 3b. Late Carrier API response payload arrives after 3.0 seconds:
+  - 3b1. System silently discards late payload to prevent unexpected price shifts on screen.
+  - 3b2. Shopper resumes checkout flow at Step 4 using $5.99 flat rate.
+
+- 7a. Payment Gateway declines credit card (e.g., insufficient funds, invalid card details):
+  - 7a1. System renders inline error banner: "Transaction declined: Please verify your payment details or try another card."
+  - 7a2. System preserves all filled address and contact form fields to avoid customer re-entry effort.
+  - 7a3. Shopper corrects payment details and resumes flow at Step 5.
+
+- 8a. Shopper leaves checkout idle for 120 consecutive minutes after entering email (Cart Abandonment Trigger):
+  - 8a1. System evaluates active cart subtotal. If subtotal < $10.00, execution terminates silently.
+  - 8a2. If subtotal >= $10.00, system queries customer log for emails in the last 7 days.
+  - 8a3. If email was sent in last 7 days, system logs "Suppressed: Frequency Cap" and terminates.
+  - 8a4. If no email sent in last 7 days, system emits JSON payload to Klaviyo Email SaaS (UC-03).
