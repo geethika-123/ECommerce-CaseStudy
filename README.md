@@ -40,3 +40,19 @@ The initiative focused on four core functional modules:
 │ 4. Testability (Gherkin)  ──► Wrote Given-When-Then criteria for QA verification │
 │ 5. Traceability (RTM)     ──► Mapped every backlog item back to strategic KPIs   │
 └──────────────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 4. Repository Structure
+
+```text
+├── README.md                              # Project overview & executive summary
+├── docs/
+│   ├── 01_Business_Requirements_Document.md # Core BRD (BR-01 to BR-04, NFRs)
+│   └── 02_System_Boundary_Use_Cases.md    # System boundary & UC-02 specifications
+├── backlog/
+│   └── Agile_User_Stories_Gherkin.md      # Sprint user stories with Gherkin criteria
+└── rtm/
+    └── Requirements_Traceability_Matrix.md # KPI to Story & Test Case mapping
+```
