@@ -40,4 +40,3 @@ The initiative focused on four core functional modules:
 │ 4. Testability (Gherkin)  ──► Wrote Given-When-Then criteria for QA verification │
 │ 5. Traceability (RTM)     ──► Mapped every backlog item back to strategic KPIs   │
 └──────────────────────────────────────────────────────────────────────────────────┘
-```
