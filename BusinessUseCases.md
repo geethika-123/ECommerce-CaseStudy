@@ -36,3 +36,4 @@ graph TB
     
     UC3 -->|Emit Recovery Payload| Klaviyo[Klaviyo Email SaaS]
     UC4 <-->|Point Balance Check & Lock| Yotpo[Yotpo Loyalty SaaS]
+```
