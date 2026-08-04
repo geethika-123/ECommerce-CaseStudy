@@ -102,6 +102,18 @@ $$\text{Value per Point} = \frac{\$5.00}{100 \text{ points}} = \$0.05 \text{ per
 * **BR-02.4 (Provisional State Lock):** Toggling "Redeem Points" at checkout places a provisional `HOLD` state on those points in the database to prevent double-spending across multiple open browser tabs.
 * **BR-02.5 (Provisional Hold Expiration Worker):** A **30-minute session timer** governs provisional locks. If checkout completes, points move to `PERMANENTLY_DEDUCTED`. If the checkout is abandoned or remains idle for 30 minutes, an asynchronous background job releases the hold and restores points to the active balance.
 
+```mermaid
+graph TD
+    A([User Toggles Point Redemption]) --> B{Cart Subtotal >= $30.00?}
+    B -- No --> C[Disable Toggle & Display Min Subtotal Banner]
+    B -- Yes --> D[Place 30-Min Provisional Hold on Points]
+    D --> E[Apply $5 Discount per 100 Points]
+    E --> F{Checkout Result?}
+    F -- Order Placed --> G[Move Points to Permanently Deducted]
+    F -- Idle 30 Mins / Cart Abandoned --> H[Background Worker Releases Provisional Hold]
+    H --> I[Restore Points to Active Balance]
+```
+
 ### BR-03: Dynamic Shipping Rates & Timeout Fallback
 * **BR-03.1 (Dynamic Rate Lookups):** Checkout triggers a real-time Carrier API lookup using the destination 5-digit postal code and cart package metrics. Registered shoppers auto-trigger this lookup on page load using their saved default shipping address.
 * **BR-03.2 (3.0s Timeout Fallback):** The system enforces a strict **3.0-second API timeout**. If the Carrier API fails or exceeds 3.0 seconds, the system automatically applies a **$5.99 flat-rate standard shipping fee**.
