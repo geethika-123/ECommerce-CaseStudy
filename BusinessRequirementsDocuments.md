@@ -68,6 +68,29 @@ The e-commerce checkout funnel currently experiences a **70% cart abandonment ra
 * **BR-01.4 (Frequency Suppression Cap):** Prior to emitting an email payload, the system queries the customer email activity log. If an abandonment recovery payload was emitted for that email address within the last **7 rolling days**, the payload is suppressed, and a `Suppressed: Frequency Cap` event is logged internally.
 * **BR-01.5 (Timer Cancellation):** Completing checkout or emptying the cart immediately terminates any active background inactivity timers.
 
+# BR-01: Cart Abandonment Engine Flow
+
+```mermaid
+graph TD
+    A([Initial Node: User Enters Email + Items in Cart]) --> B[Calculate Cart Subtotal]
+    B --> C{Is Subtotal >= $10.00?}
+    C -- No --> D([Activity Canceled])
+    C -- Yes --> E[Start 120-Min Idle Timer]
+    
+    E --> F{User Activity Event?}
+    F -- Order Completed --> G[Cancel Timer] --> H([Activity Canceled])
+    F -- Cart Emptied --> I[Cancel Timer] --> J([Activity Canceled])
+    F -- 120 Mins Elapsed --> K[Re-evaluate Cart Subtotal]
+    
+    K --> L{Is Subtotal >= $10.00?}
+    L -- No --> M([Activity Canceled])
+    L -- Yes --> N[Query Customer Email Log]
+    
+    N --> O{Email Sent in Last 7 Days?}
+    O -- Yes --> P[Log Suppression Event] --> Q([Activity Complete])
+    O -- No --> R[Emit Payload to Email SaaS] --> S[Log Sent Timestamp] --> T([Activity Complete])
+```
+
 ### BR-02: Loyalty Program & Provisional State Lock (BR-02.1)
 
 #### Point Valuation Math
