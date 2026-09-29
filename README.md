@@ -26,6 +26,22 @@ The initiative focused on four core functional modules:
 3. **Dynamic Shipping & Circuit-Breaker Fallback (BR-03):** Enforces a strict **3.0-second timeout** on live shipping API lookups. If an API delays, the system silently applies a **$5.99 flat-rate fallback** to keep the customer moving through checkout.
 4. **Frictionless Guest Checkout (BR-04):** Removes mandatory sign-up barriers while offering a 1-click account conversion prompt on the order confirmation screen.
 
+
+### Example Acceptance Criteria (Gherkin)
+
+**BR-01 — Cart Recovery Engine:**
+
+```gherkin
+Given a customer has items in their cart
+And the cart has been idle for 120 minutes
+And the cart subtotal is greater than $10.00
+And the customer has not received a recovery 
+    email in the last 7 days
+When the recovery engine evaluates the session
+Then a personalised recovery email is triggered
+And the 7-day suppression timer resets
+```
+
 ---
 
 ## 3. Business Analysis Frameworks Applied
@@ -42,6 +58,20 @@ The initiative focused on four core functional modules:
 └──────────────────────────────────────────────────────────────────────────────────┘
 ```
 
+## 4. Key Outcomes
+
+- Defined automated cart recovery logic addressing a 70% 
+  checkout abandonment rate — including a 7-day frequency 
+  suppression cap to prevent customer email fatigue
+- Specified loyalty point double-spend prevention via a 
+  30-minute provisional state lock across concurrent sessions
+- Designed a circuit-breaker fallback mechanism ensuring 
+  checkout continuity when third-party shipping APIs exceed 
+  3-second response threshold
+- Produced a Requirements Traceability Matrix mapping all 
+  four functional modules directly to strategic KPIs
+- Delivered sprint-ready Agile user stories with Gherkin 
+  acceptance criteria for QA verification
 ---
 
 ## 4. Repository Structure
